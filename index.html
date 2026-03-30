@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Irrigation Doctor — Field Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #2D6A4F;
+    --green-light: #40916C;
+    --green-pale: #D8F3DC;
+    --amber: #F4A261;
+    --amber-dark: #E76F51;
+    --dark: #1B2529;
+    --mid: #3D4F55;
+    --muted: #7A9199;
+    --bg: #F0F4F2;
+    --card: #FFFFFF;
+    --border: #D4E0DC;
+    --red: #C94040;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--green);
+    padding: 20px 20px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    bottom: -30px; right: -20px;
+    width: 140px; height: 140px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--amber);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .company-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: white;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .form-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: white;
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-top: 10px;
+  }
+  .form-subtitle {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    margin-top: 4px;
+    font-weight: 400;
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: var(--green);
+    padding: 0 20px 16px;
+  }
+  .progress-track {
+    background: rgba(255,255,255,0.2);
+    border-radius: 99px;
+    height: 4px;
+    position: relative;
+  }
+  .progress-fill {
+    background: var(--amber);
+    height: 4px;
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 6px;
+    text-align: right;
+  }
+
+  /* SECTIONS */
+  .section {
+    margin: 16px 16px 0;
+    background: var(--card);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .section-header {
+    background: var(--dark);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--amber);
+    line-height: 1;
+    min-width: 22px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .section-body {
+    padding: 4px 0;
+  }
+
+  /* FIELD ROW */
+  .field-row {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .field-row:last-child { border-bottom: none; }
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  label .req {
+    color: var(--amber-dark);
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px; /* 16px prevents iOS zoom */
+    color: var(--dark);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--green-light);
+    background: white;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A9199' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+  }
+
+  /* COUNTER CONTROL */
+  .counter-row {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .counter-row:last-child { border-bottom: none; }
+  .counter-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--dark);
+    flex: 1;
+    line-height: 1.3;
+  }
+  .counter-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .counter-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .counter-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--green);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .counter-btn:active { background: var(--green-pale); }
+  .counter-val {
+    min-width: 36px;
+    text-align: center;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--dark);
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    padding: 0 4px;
+    height: 40px;
+    line-height: 40px;
+  }
+  .counter-val.nonzero { color: var(--green); }
+
+  /* TOGGLE YES/NO */
+  .toggle-row {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--dark);
+    flex: 1;
+    line-height: 1.3;
+  }
+  .toggle-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .toggle-group {
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+  }
+  .toggle-btn {
+    padding: 8px 14px;
+    border: none;
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .toggle-btn:first-child { border-right: 1px solid var(--border); }
+  .toggle-btn.active-yes {
+    background: var(--green);
+    color: white;
+  }
+  .toggle-btn.active-no {
+    background: var(--red);
+    color: white;
+  }
+
+  /* SYSTEM CONDITION RATING */
+  .rating-row {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .rating-row:last-child { border-bottom: none; }
+  .rating-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 10px;
+  }
+  .rating-options {
+    display: flex;
+    gap: 8px;
+  }
+  .rating-opt {
+    flex: 1;
+    padding: 9px 4px;
+    border-radius: 9px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .rating-opt .emoji { font-size: 20px; display: block; margin-bottom: 2px; }
+  .rating-opt .rtxt { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; }
+  .rating-opt.active-good { border-color: var(--green); background: var(--green-pale); }
+  .rating-opt.active-good .rtxt { color: var(--green); }
+  .rating-opt.active-fair { border-color: #F4A261; background: #FFF3E8; }
+  .rating-opt.active-fair .rtxt { color: #C97A20; }
+  .rating-opt.active-poor { border-color: var(--red); background: #FFE8E8; }
+  .rating-opt.active-poor .rtxt { color: var(--red); }
+
+  /* SUBMIT */
+  .submit-wrap {
+    padding: 20px 16px 8px;
+  }
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.2s, transform 0.1s;
+    box-shadow: 0 4px 12px rgba(45,106,79,0.3);
+  }
+  .submit-btn:active {
+    background: var(--green-light);
+    transform: scale(0.99);
+  }
+  .submit-btn.loading {
+    background: var(--muted);
+    pointer-events: none;
+  }
+
+  /* SUCCESS SCREEN */
+  .success-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .success-icon {
+    width: 80px; height: 80px;
+    background: var(--green-pale);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+    margin-bottom: 20px;
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .success-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--green);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .success-sub {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+  .new-report-btn {
+    padding: 14px 32px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+    font-style: italic;
+  }
+
+  /* REPAIR CARD SYSTEM */
+  .repair-cards { display: flex; flex-direction: column; gap: 0; }
+
+  .repair-card {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    margin: 8px 16px;
+    overflow: hidden;
+    animation: slideDown 0.2s ease;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .repair-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--green);
+  }
+  .repair-card-type {
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.2px;
+  }
+  .repair-card-remove {
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .repair-card-remove:hover { background: rgba(201,64,64,0.7); }
+  .repair-card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .repair-card-field {
+    padding: 10px 12px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .repair-card-field:nth-child(even) { border-right: none; }
+  .repair-card-field:last-child,
+  .repair-card-field:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+  .repair-card-field:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    border-right: none;
+  }
+  .repair-card-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 5px;
+  }
+  .repair-card-input {
+    width: 100%;
+    padding: 7px 10px;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: var(--dark);
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .repair-card-input:focus { border-color: var(--green-light); }
+
+  .add-repair-btn {
+    margin: 8px 16px 12px;
+    padding: 13px;
+    background: var(--green-pale);
+    border: 1.5px dashed var(--green-light);
+    border-radius: 10px;
+    color: var(--green);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    width: calc(100% - 32px);
+    text-align: center;
+    transition: background 0.15s;
+  }
+  .add-repair-btn:active { background: #b7e4c7; }
+
+  /* TYPE PICKER SHEET */
+  .type-sheet-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 500;
+  }
+  .type-sheet {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: white;
+    border-radius: 20px 20px 0 0;
+    padding: 16px 16px 32px;
+    z-index: 600;
+    animation: sheetUp 0.25s cubic-bezier(0.34,1,0.64,1);
+  }
+  @keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .type-sheet-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .type-option {
+    padding: 14px 10px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .type-option:active { background: var(--green-pale); border-color: var(--green-light); }
+  .type-option-icon { font-size: 22px; margin-bottom: 4px; }
+  .type-option-label { font-size: 12px; font-weight: 700; color: var(--dark); line-height: 1.2; }
+  .type-sheet-cancel {
+    margin-top: 12px;
+    width: 100%;
+    padding: 13px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div id="formView">
+  <div class="header">
+    <div class="header-top">
+      <div class="logo-icon">💧</div>
+      <div class="company-name">The Irrigation Doctor</div>
+    </div>
+    <div class="form-title">Spring Startup Report</div>
+    <div class="form-subtitle">Fill out at job site — takes about 90 seconds</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0% complete</div>
+  </div>
+
+  <form id="startupForm" novalidate>
+
+    <!-- SECTION 1: JOB INFO -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">01</div>
+        <div class="section-title">Job Info</div>
+      </div>
+      <div class="section-body">
+        <div class="field-row">
+          <label>Tech Name <span class="req">*</span></label>
+          <select name="tech" required>
+            <option value="">Select tech...</option>
+            <option>Jesus</option>
+            <option>Sergio</option>
+            <option>Manuel</option>
+            <option>Hector</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Date <span class="req">*</span></label>
+          <input type="date" name="date" required>
+        </div>
+        <div class="field-row">
+          <label>Customer Name <span class="req">*</span></label>
+          <input type="text" name="customer" placeholder="Last name or full name" required>
+        </div>
+        <div class="field-row">
+          <label>Job Address <span class="req">*</span></label>
+          <input type="text" name="address" placeholder="Street address" required>
+        </div>
+        <div class="field-row">
+          <label>Jobber Job # <span class="hint" style="font-style:normal;font-size:11px;color:var(--muted);text-transform:none;">(optional)</span></label>
+          <input type="text" name="jobber_id" placeholder="e.g. 4821">
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: SYSTEM LAYOUT -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">02</div>
+        <div class="section-title">System Layout</div>
+      </div>
+      <div class="section-body">
+        <div class="counter-row" style="flex-direction:column;align-items:flex-start;gap:10px;padding:13px 16px;border-bottom:1px solid var(--border);">
+          <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">Number of Zones <span class="req">*</span></label>
+          <div style="display:flex;align-items:center;width:100%;justify-content:space-between;">
+            <span style="font-size:14px;color:var(--dark);">Total active zones</span>
+            <div class="counter-ctrl">
+              <button type="button" class="counter-btn" onclick="changeCount('zones',-1)">−</button>
+              <div class="counter-val" id="zones-val">0</div>
+              <button type="button" class="counter-btn" onclick="changeCount('zones',1)">+</button>
+            </div>
+          </div>
+          <input type="hidden" name="zones" id="zones-input" value="0">
+        </div>
+        <div class="field-row">
+          <label>Controller Location</label>
+          <select name="controller_location">
+            <option value="">Select...</option>
+            <option>Garage — wall mounted</option>
+            <option>Garage — ceiling mounted</option>
+            <option>Side of house</option>
+            <option>Front of house</option>
+            <option>Exterior wall box</option>
+            <option>Basement</option>
+            <option>Utility room</option>
+            <option>Other (note below)</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Backflow Location</label>
+          <select name="backflow_location">
+            <option value="">Select...</option>
+            <option>Front — left of house</option>
+            <option>Front — right of house</option>
+            <option>Side — left</option>
+            <option>Side — right</option>
+            <option>Rear</option>
+            <option>Garage</option>
+            <option>Basement</option>
+            <option>Utility room</option>
+            <option>No backflow present</option>
+            <option>Other (note below)</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Main Shutoff Location</label>
+          <select name="shutoff_location">
+            <option value="">Select...</option>
+            <option>Garage</option>
+            <option>Basement</option>
+            <option>Utility room</option>
+            <option>Exterior — meter box</option>
+            <option>Crawl space</option>
+            <option>Other (note below)</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Water Source</label>
+          <select name="water_source">
+            <option value="">Select...</option>
+            <option>City / municipal</option>
+            <option>Well</option>
+            <option>Pond / lake</option>
+            <option>Reclaimed water</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Controller Brand</label>
+          <select name="controller_brand">
+            <option value="">Select...</option>
+            <option>Hunter</option>
+            <option>Rain Bird</option>
+            <option>Weathermatic</option>
+            <option>Orbit</option>
+            <option>Toro</option>
+            <option>Rachio (WiFi)</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: SYSTEM CONDITION -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">03</div>
+        <div class="section-title">System Condition</div>
+      </div>
+      <div class="section-body">
+        <div class="rating-row">
+          <div class="rating-label">Overall System Condition</div>
+          <div class="rating-options">
+            <div class="rating-opt" onclick="setRating('condition','good',this)">
+              <span class="emoji">✅</span><span class="rtxt">Good</span>
+            </div>
+            <div class="rating-opt" onclick="setRating('condition','fair',this)">
+              <span class="emoji">⚠️</span><span class="rtxt">Fair</span>
+            </div>
+            <div class="rating-opt" onclick="setRating('condition','poor',this)">
+              <span class="emoji">🔴</span><span class="rtxt">Poor</span>
+            </div>
+          </div>
+          <input type="hidden" name="condition" id="condition-input">
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">System fully operational at end of visit?</div>
+          </div>
+          <div class="toggle-group">
+            <button type="button" class="toggle-btn" onclick="setToggle('operational',true,this)">YES</button>
+            <button type="button" class="toggle-btn" onclick="setToggle('operational',false,this)">NO</button>
+          </div>
+          <input type="hidden" name="operational" id="operational-input">
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Backflow tested?</div>
+            <div class="toggle-sub">If required / accessible</div>
+          </div>
+          <div class="toggle-group">
+            <button type="button" class="toggle-btn" onclick="setToggle('backflow_tested',true,this)">YES</button>
+            <button type="button" class="toggle-btn" onclick="setToggle('backflow_tested',false,this)">NO</button>
+          </div>
+          <input type="hidden" name="backflow_tested" id="backflow_tested-input">
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Follow-up visit needed?</div>
+          </div>
+          <div class="toggle-group">
+            <button type="button" class="toggle-btn" onclick="setToggle('followup',true,this)">YES</button>
+            <button type="button" class="toggle-btn" onclick="setToggle('followup',false,this)">NO</button>
+          </div>
+          <input type="hidden" name="followup" id="followup-input">
+        </div>
+        <div class="toggle-row" style="border-bottom:none;">
+          <div>
+            <div class="toggle-label">Customer present?</div>
+          </div>
+          <div class="toggle-group">
+            <button type="button" class="toggle-btn" onclick="setToggle('customer_present',true,this)">YES</button>
+            <button type="button" class="toggle-btn" onclick="setToggle('customer_present',false,this)">NO</button>
+          </div>
+          <input type="hidden" name="customer_present" id="customer_present-input">
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: PARTS & REPAIRS -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">04</div>
+        <div class="section-title">Parts & Repairs</div>
+      </div>
+      <div class="section-body" style="padding-bottom:4px;">
+
+        <div style="padding:10px 16px 4px;font-size:12px;color:var(--muted);">
+          Tap <strong style="color:var(--green);">+ Add Repair</strong> for each repair made. Each entry tracks part type, quantity, and zone number.
+        </div>
+
+        <!-- Repair Cards Container -->
+        <div class="repair-cards" id="repairCards"></div>
+
+        <button type="button" class="add-repair-btn" onclick="openTypeSheet()">
+          + Add Repair
+        </button>
+
+        <!-- Divider -->
+        <div style="height:1px;background:var(--border);margin:4px 16px 0;"></div>
+
+        <!-- Non-zone items -->
+        <div class="field-row" style="margin-top:4px;">
+          <label>Fittings Used</label>
+          <input type="text" name="fittings" placeholder="e.g. 2x slip couplings, 1x 90° elbow">
+          <div class="hint">Quick list — zone not needed for fittings</div>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Controller Replaced?</div>
+          </div>
+          <div class="toggle-group">
+            <button type="button" class="toggle-btn" onclick="setToggle('controller_replaced',true,this)">YES</button>
+            <button type="button" class="toggle-btn" onclick="setToggle('controller_replaced',false,this)">NO</button>
+          </div>
+          <input type="hidden" name="controller_replaced" id="controller_replaced-input">
+        </div>
+
+        <div class="counter-row" style="border-bottom:none;">
+          <div class="counter-label">Wiring Repairs<div class="counter-sub">Number of wire repairs</div></div>
+          <div class="counter-ctrl">
+            <button type="button" class="counter-btn" onclick="changeCount('wire_repairs',-1)">−</button>
+            <div class="counter-val" id="wire_repairs-val">0</div>
+            <button type="button" class="counter-btn" onclick="changeCount('wire_repairs',1)">+</button>
+          </div>
+          <input type="hidden" name="wire_repairs" id="wire_repairs-input" value="0">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TYPE PICKER SHEET -->
+    <div class="type-sheet-overlay" id="typeSheetOverlay" onclick="closeTypeSheet()">
+      <div class="type-sheet" onclick="event.stopPropagation()">
+        <div class="type-sheet-title">What was replaced or repaired?</div>
+        <div class="type-grid">
+          <div class="type-option" onclick="addRepair('Rotor Head — Std')">
+            <div class="type-option-icon">🔄</div>
+            <div class="type-option-label">Rotor Head<br>Standard (4")</div>
+          </div>
+          <div class="type-option" onclick="addRepair('Rotor Head — 12\"')">
+            <div class="type-option-icon">🔄</div>
+            <div class="type-option-label">Rotor Head<br>12"</div>
+          </div>
+          <div class="type-option" onclick="addRepair('Spray Head — Std')">
+            <div class="type-option-icon">💦</div>
+            <div class="type-option-label">Spray Head<br>Standard (4")</div>
+          </div>
+          <div class="type-option" onclick="addRepair('Spray Head — 12\"')">
+            <div class="type-option-icon">💦</div>
+            <div class="type-option-label">Spray Head<br>12"</div>
+          </div>
+          <div class="type-option" onclick="addRepair('Micro Spray')">
+            <div class="type-option-icon">🌿</div>
+            <div class="type-option-label">Micro Spray<br>Head / Stake</div>
+          </div>
+          <div class="type-option" onclick="addRepair('Spray Nozzle')">
+            <div class="type-option-icon">🔩</div>
+            <div class="type-option-label">Spray Nozzle<br>Fixed arc</div>
+          </div>
+          <div class="type-option" onclick="addRepair('MP Rotator Nozzle')">
+            <div class="type-option-icon">🔩</div>
+            <div class="type-option-label">MP Rotator<br>Nozzle</div>
+          </div>
+          <div class="type-option" onclick="addRepair('Zone Valve')">
+            <div class="type-option-icon">🚰</div>
+            <div class="type-option-label">Zone Valve<br>Full replace</div>
+          </div>
+          <div class="type-option" onclick="addRepair('Solenoid')">
+            <div class="type-option-icon">⚡</div>
+            <div class="type-option-label">Solenoid<br>Only</div>
+          </div>
+          <div class="type-option" onclick="addRepair('PVC Line Repair')">
+            <div class="type-option-icon">🔧</div>
+            <div class="type-option-label">PVC Line<br>Repair</div>
+          </div>
+          <div class="type-option" onclick="addRepair('Drip Repair')">
+            <div class="type-option-icon">💧</div>
+            <div class="type-option-label">Drip Line<br>Repair</div>
+          </div>
+          <div class="type-option" onclick="addRepair('Other')">
+            <div class="type-option-icon">➕</div>
+            <div class="type-option-label">Other<br>(specify)</div>
+          </div>
+        </div>
+        <button class="type-sheet-cancel" onclick="closeTypeSheet()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- SECTION 5: ZONES FLAGGED -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">05</div>
+        <div class="section-title">Zones to Flag</div>
+      </div>
+      <div class="section-body">
+        <div class="field-row" style="border-bottom:none;">
+          <label>Zones with issues (optional)</label>
+          <input type="text" name="flagged_zones" placeholder="e.g. Zone 3 low pressure, Zone 7 no coverage">
+          <div class="hint">Zone numbers and quick note — full detail in notes section</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 6: NOTES -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">06</div>
+        <div class="section-title">Notes & Recommendations</div>
+      </div>
+      <div class="section-body">
+        <div class="field-row">
+          <label>Repairs Needed / Quoted</label>
+          <textarea name="repairs_needed" placeholder="Anything you saw that needs attention — quote given? Approved?"></textarea>
+        </div>
+        <div class="field-row" style="border-bottom:none;">
+          <label>Additional Notes</label>
+          <textarea name="notes" placeholder="Gate code, dog, customer requests, anything unusual..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBMIT -->
+    <div class="submit-wrap">
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span>⚡</span> Submit Report
+      </button>
+    </div>
+
+    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:12px;padding:0 20px;">
+      Reports are emailed to the office automatically after submission.
+    </p>
+  </form>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✅</div>
+  <div class="success-title">Report Submitted</div>
+  <div class="success-sub">Cheryl has been notified.<br>You're all set — on to the next one.</div>
+  <button class="new-report-btn" onclick="resetForm()">Start New Report</button>
+</div>
+
+<script>
+  // ---- REPAIR CARDS ----
+  let repairs = [];
+  let repairIdCounter = 0;
+
+  function openTypeSheet() {
+    document.getElementById('typeSheetOverlay').style.display = 'block';
+  }
+  function closeTypeSheet() {
+    document.getElementById('typeSheetOverlay').style.display = 'none';
+  }
+
+  function addRepair(type) {
+    closeTypeSheet();
+    const id = repairIdCounter++;
+    repairs.push({ id, type, qty: 1, zone: '', note: '' });
+    renderRepairCards();
+  }
+
+  function removeRepair(id) {
+    repairs = repairs.filter(r => r.id !== id);
+    renderRepairCards();
+    updateProgress();
+  }
+
+  function renderRepairCards() {
+    const container = document.getElementById('repairCards');
+    if (!repairs.length) {
+      container.innerHTML = '';
+      return;
+    }
+    container.innerHTML = repairs.map(r => `
+      <div class="repair-card" id="rcard-${r.id}">
+        <div class="repair-card-header">
+          <div class="repair-card-type">${r.type}</div>
+          <button type="button" class="repair-card-remove" onclick="removeRepair(${r.id})">✕</button>
+        </div>
+        <div class="repair-card-body">
+          <div class="repair-card-field">
+            <div class="repair-card-label">Quantity</div>
+            <input class="repair-card-input" type="number" min="1" max="99"
+              value="${r.qty}"
+              inputmode="numeric"
+              onchange="updateRepair(${r.id},'qty',this.value)"
+              oninput="updateRepair(${r.id},'qty',this.value)">
+          </div>
+          <div class="repair-card-field">
+            <div class="repair-card-label">Zone #</div>
+            <input class="repair-card-input" type="text"
+              placeholder="e.g. 3"
+              value="${r.zone}"
+              inputmode="numeric"
+              onchange="updateRepair(${r.id},'zone',this.value)"
+              oninput="updateRepair(${r.id},'zone',this.value)">
+          </div>
+          ${r.type === 'Other' ? `
+          <div class="repair-card-field" style="grid-column:1/-1;border-right:none;">
+            <div class="repair-card-label">Describe</div>
+            <input class="repair-card-input" type="text"
+              placeholder="What was done?"
+              value="${r.note}"
+              onchange="updateRepair(${r.id},'note',this.value)"
+              oninput="updateRepair(${r.id},'note',this.value)">
+          </div>` : ''}
+        </div>
+      </div>`).join('');
+    updateProgress();
+  }
+
+  function updateRepair(id, field, value) {
+    const r = repairs.find(r => r.id === id);
+    if (r) r[field] = value;
+  }
+
+  // ---- COUNTER LOGIC (wire repairs only) ----
+  const counts = {};
+  function changeCount(key, delta) {
+    counts[key] = Math.max(0, (counts[key] || 0) + delta);
+    const valEl   = document.getElementById(key + '-val');
+    const inputEl = document.getElementById(key + '-input');
+    valEl.textContent = counts[key];
+    valEl.className = 'counter-val' + (counts[key] > 0 ? ' nonzero' : '');
+    inputEl.value = counts[key];
+    updateProgress();
+  }
+
+  // ---- TOGGLE LOGIC ----
+  const toggleVals = {};
+  function setToggle(key, val, btn) {
+    toggleVals[key] = val;
+    document.getElementById(key + '-input').value = val;
+    const group = btn.closest('.toggle-group');
+    group.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active-yes','active-no'));
+    btn.classList.add(val ? 'active-yes' : 'active-no');
+    updateProgress();
+  }
+
+  // ---- RATING LOGIC ----
+  function setRating(key, val, el) {
+    document.getElementById(key + '-input').value = val;
+    el.closest('.rating-options').querySelectorAll('.rating-opt').forEach(o => {
+      o.classList.remove('active-good','active-fair','active-poor');
+    });
+    el.classList.add('active-' + val);
+    updateProgress();
+  }
+
+  // ---- PROGRESS ----
+  function updateProgress() {
+    const required = ['tech','date','customer','address'];
+    const form = document.getElementById('startupForm');
+    let filled = 0;
+    required.forEach(name => {
+      const el = form.elements[name];
+      if (el && el.value.trim()) filled++;
+    });
+    const hasCondition   = document.getElementById('condition-input').value !== '';
+    const hasOperational = document.getElementById('operational-input').value !== '';
+    let pct = Math.round((filled / required.length) * 60);
+    if (hasCondition)   pct += 15;
+    if (hasOperational) pct += 10;
+    if (repairs.length > 0) pct += 15;
+    pct = Math.min(pct, 100);
+    document.getElementById('progressFill').style.width  = pct + '%';
+    document.getElementById('progressLabel').textContent = pct + '% complete';
+  }
+
+  document.getElementById('startupForm').addEventListener('input', updateProgress);
+
+  // ---- FORM SUBMIT ----
+  document.getElementById('startupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const required = ['tech','date','customer','address'];
+    let valid = true;
+    required.forEach(name => {
+      const el = this.elements[name];
+      if (!el || !el.value.trim()) {
+        valid = false;
+        if (el) {
+          el.style.borderColor = 'var(--red)';
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } else {
+        el.style.borderColor = '';
+      }
+    });
+    if (!valid) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.classList.add('loading');
+    btn.textContent = 'Submitting...';
+
+    // Collect form fields
+    const fd   = new FormData(this);
+    const data = {};
+    fd.forEach((v, k) => data[k] = v);
+
+    // Add counter values
+    Object.entries(counts).forEach(([k, v]) => data[k] = v);
+
+    // Format repair cards as readable text for email
+    if (repairs.length > 0) {
+      data.repairs = repairs.map((r, i) => {
+        let line = `${i+1}. ${r.type} — qty: ${parseInt(r.qty)||1}`;
+        if (r.zone) line += `, zone: ${r.zone}`;
+        if (r.note) line += ` (${r.note})`;
+        return line;
+      }).join('\n');
+    } else {
+      data.repairs = 'No repairs logged';
+    }
+
+    const ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+
+    fetch(ENDPOINT, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify(data)
+    })
+    .then(r => {
+      if (r.ok) {
+        showSuccess();
+      } else {
+        btn.classList.remove('loading');
+        btn.innerHTML = '<span>⚡</span> Submit Report';
+        alert('Submission failed. Check your signal and try again.');
+      }
+    })
+    .catch(() => {
+      btn.classList.remove('loading');
+      btn.innerHTML = '<span>⚡</span> Submit Report';
+      alert('No connection. Check your signal and try again.');
+    });
+  });
+
+  function showSuccess() {
+    document.getElementById('formView').style.display  = 'none';
+    document.getElementById('successScreen').style.display = 'flex';
+  }
+
+  function resetForm() {
+    document.getElementById('startupForm').reset();
+    repairs = [];
+    repairIdCounter = 0;
+    renderRepairCards();
+    Object.keys(counts).forEach(k => {
+      counts[k] = 0;
+      const v = document.getElementById(k + '-val');
+      const i = document.getElementById(k + '-input');
+      if (v) { v.textContent = '0'; v.className = 'counter-val'; }
+      if (i) i.value = '0';
+    });
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active-yes','active-no'));
+    document.querySelectorAll('.rating-opt').forEach(o => o.classList.remove('active-good','active-fair','active-poor'));
+    Object.keys(toggleVals).forEach(k => delete toggleVals[k]);
+    document.getElementById('progressFill').style.width  = '0%';
+    document.getElementById('progressLabel').textContent = '0% complete';
+    document.getElementById('successScreen').style.display = 'none';
+    document.getElementById('formView').style.display  = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  // Set today's date as default
+  const dateInput = document.querySelector('input[type="date"]');
+  if (dateInput) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    updateProgress();
+  }
+</script>
+</body>
+</html>
