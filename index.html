@@ -966,6 +966,18 @@
   <div class="success-title">Report Submitted</div>
   <div class="success-sub">Cheryl has been notified.<br>You're all set — on to the next one.</div>
   <button class="new-report-btn" onclick="resetForm()">Start New Report</button>
+  <button class="new-report-btn" style="margin-top:10px;background:var(--mid);" onclick="viewSavedReport()">View Saved Report</button>
+</div>
+
+<!-- SAVED REPORT MODAL -->
+<div id="savedReportOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:900;overflow-y:auto;">
+  <div style="background:white;margin:20px 16px 40px;border-radius:16px;padding:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--green);letter-spacing:1px;">Saved Report</div>
+      <button onclick="document.getElementById('savedReportOverlay').style.display='none'" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;">Close</button>
+    </div>
+    <pre id="savedReportContent" style="font-family:'DM Sans',sans-serif;font-size:13px;color:var(--dark);white-space:pre-wrap;line-height:1.7;"></pre>
+  </div>
 </div>
 
 <script>
@@ -1058,7 +1070,7 @@
   const toggleVals = {};
   function setToggle(key, val, btn) {
     toggleVals[key] = val;
-    document.getElementById(key + '-input').value = val;
+    document.getElementById(key + '-input').value = val ? 'Yes' : 'No';
     const group = btn.closest('.toggle-group');
     group.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active-yes','active-no'));
     btn.classList.add(val ? 'active-yes' : 'active-no');
@@ -1141,6 +1153,9 @@
       data.repairs = 'No repairs logged';
     }
 
+    // Save to localStorage before sending — data is safe even if network fails
+    localStorage.setItem('lastReport', JSON.stringify({ data, savedAt: new Date().toISOString() }));
+
     const ENDPOINT = 'https://formspree.io/f/xlgobypp';
 
     fetch(ENDPOINT, {
@@ -1198,6 +1213,53 @@
     dateInput.value = today;
     updateProgress();
   }
+
+  // ---- LOCALSTORAGE RECOVERY ----
+  function viewSavedReport() {
+    const raw = localStorage.getItem('lastReport');
+    if (!raw) { alert('No saved report found on this device.'); return; }
+    const { data, savedAt } = JSON.parse(raw);
+    const saved = new Date(savedAt).toLocaleString();
+    let text = `Saved: ${saved}\n${'─'.repeat(36)}\n`;
+    const labels = {
+      tech:'Tech', date:'Date', customer:'Customer', address:'Address',
+      jobber_id:'Jobber #', zones:'Zones', controller_location:'Controller Location',
+      backflow_location:'Backflow Location', shutoff_location:'Main Shutoff',
+      water_source:'Water Source', controller_brand:'Controller Brand',
+      condition:'System Condition', operational:'Fully Operational',
+      backflow_tested:'Backflow Tested', followup:'Follow-up Needed',
+      customer_present:'Customer Present', fittings:'Fittings Used',
+      controller_replaced:'Controller Replaced', wire_repairs:'Wiring Repairs',
+      flagged_zones:'Zones Flagged', repairs_needed:'Repairs Needed / Quoted',
+      notes:'Notes', repairs:'Parts & Repairs'
+    };
+    Object.entries(labels).forEach(([k, label]) => {
+      if (data[k] !== undefined && data[k] !== '' && data[k] !== '0') {
+        text += `${label}: ${data[k]}\n`;
+      }
+    });
+    document.getElementById('savedReportContent').textContent = text;
+    document.getElementById('savedReportOverlay').style.display = 'block';
+  }
+
+  // Show recovery banner if a saved report exists from a previous session
+  (function checkForSavedReport() {
+    const raw = localStorage.getItem('lastReport');
+    if (!raw) return;
+    const { savedAt } = JSON.parse(raw);
+    const saved = new Date(savedAt).toLocaleString();
+    const banner = document.createElement('div');
+    banner.id = 'recoveryBanner';
+    banner.style.cssText = 'background:#FFF3E8;border-bottom:2px solid var(--amber);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;';
+    banner.innerHTML = `
+      <div style="font-size:12px;color:var(--mid);line-height:1.4;">
+        <strong style="color:var(--amber-dark);">Saved report on device</strong><br>
+        ${saved}
+      </div>
+      <button onclick="viewSavedReport()" style="background:var(--amber);color:white;border:none;border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">View</button>
+    `;
+    document.getElementById('formView').insertBefore(banner, document.getElementById('formView').firstChild.nextSibling);
+  })();
 </script>
 </body>
 </html>
